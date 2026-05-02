@@ -1,0 +1,163 @@
+:root {
+  color-scheme: light;
+  --text: #202124;
+  --muted: #5f6368;
+  --line: #dadce0;
+  --link: #1a0dab;
+  --surface: #ffffff;
+  --button: #f8fafd;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  color: var(--text);
+  background: var(--surface);
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.top-nav {
+  display: flex;
+  justify-content: flex-end;
+  gap: 20px;
+  padding: 18px 28px;
+  font-size: 14px;
+}
+
+a {
+  color: var(--link);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+.search-home {
+  min-height: calc(100vh - 70px);
+  display: grid;
+  align-content: center;
+  justify-items: center;
+  padding: 24px;
+}
+
+h1 {
+  margin: 0 0 30px;
+  font-size: clamp(36px, 7vw, 76px);
+  font-weight: 500;
+  letter-spacing: 0;
+}
+
+.search-box {
+  display: flex;
+  width: min(720px, 100%);
+  gap: 12px;
+}
+
+.search-box input,
+.crawl-form input {
+  width: 100%;
+  min-height: 46px;
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  padding: 0 18px;
+  color: var(--text);
+  font-size: 16px;
+}
+
+.search-box button,
+.crawl-form button {
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  padding: 0 18px;
+  background: var(--button);
+  color: var(--text);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.page,
+.results-page {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px 24px 64px;
+}
+
+.page h1 {
+  font-size: 34px;
+}
+
+.crawl-form {
+  display: grid;
+  gap: 18px;
+  max-width: 620px;
+}
+
+.crawl-form label {
+  display: grid;
+  gap: 8px;
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.alert,
+.status {
+  border-left: 4px solid #1a73e8;
+  margin: 0 0 24px;
+  padding: 14px 16px;
+  background: #f8fafd;
+}
+
+.compact {
+  justify-content: flex-start;
+  margin-bottom: 22px;
+}
+
+.compact input {
+  border-radius: 22px;
+}
+
+.result-count {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.result {
+  margin: 26px 0;
+}
+
+.result-title {
+  display: inline-block;
+  margin-bottom: 4px;
+  font-size: 20px;
+}
+
+.result-url {
+  color: #188038;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.result p {
+  margin: 8px 0;
+  line-height: 1.45;
+}
+
+.scores {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  color: var(--muted);
+  font-size: 13px;
+}
+
+@media (max-width: 640px) {
+  .search-box {
+    flex-direction: column;
+  }
+}
+

@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Mini Search Engine</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  </head>
+  <body>
+    <nav class="top-nav">
+      <a href="{{ url_for('crawl_form') }}">Crawler</a>
+      <a href="{{ url_for('health') }}">Health</a>
+    </nav>
+    <main class="search-home">
+      <h1>Mini Search Engine</h1>
+      <form class="search-box" action="{{ url_for('search_page') }}" method="get">
+        <input type="search" name="q" placeholder="Search crawled pages" autofocus>
+        <button type="submit">Search</button>
+      </form>
+    </main>
+  </body>
+</html>
+

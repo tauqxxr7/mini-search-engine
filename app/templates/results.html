@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Results - Mini Search Engine</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  </head>
+  <body>
+    <nav class="top-nav">
+      <a href="{{ url_for('index') }}">Search</a>
+      <a href="{{ url_for('crawl_form') }}">Crawler</a>
+    </nav>
+    <main class="results-page">
+      <form class="search-box compact" action="{{ url_for('search_page') }}" method="get">
+        <input type="search" name="q" value="{{ query }}" placeholder="Search crawled pages">
+        <button type="submit">Search</button>
+      </form>
+      <p class="result-count">{{ results|length }} results for "{{ query }}"</p>
+      {% for result in results %}
+      <article class="result">
+        <a class="result-title" href="{{ result.url }}">{{ result.title }}</a>
+        <div class="result-url">{{ result.url }}</div>
+        <p>{{ result.snippet }}</p>
+        <div class="scores">
+          <span>TF-IDF {{ "%.4f"|format(result.tfidf_score) }}</span>
+          <span>PageRank {{ "%.4f"|format(result.pagerank_score) }}</span>
+          <span>Final {{ "%.4f"|format(result.final_score) }}</span>
+        </div>
+      </article>
+      {% else %}
+      <p>No matching indexed pages yet. Crawl a site first, then search again.</p>
+      {% endfor %}
+    </main>
+  </body>
+</html>
+

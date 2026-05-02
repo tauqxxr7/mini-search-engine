@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Crawler - Mini Search Engine</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  </head>
+  <body>
+    <nav class="top-nav">
+      <a href="{{ url_for('index') }}">Search</a>
+    </nav>
+    <main class="page">
+      <h1>Crawl a Site</h1>
+      {% if error %}
+      <p class="alert">{{ error }}</p>
+      {% endif %}
+      {% if stats %}
+      <section class="status">
+        <strong>Crawl complete.</strong>
+        <p>{{ stats.pages_crawled }} pages crawled from {{ stats.seed_url }}.</p>
+        {% if stats.errors %}
+        <ul>
+          {% for error in stats.errors[:5] %}
+          <li>{{ error }}</li>
+          {% endfor %}
+        </ul>
+        {% endif %}
+      </section>
+      {% endif %}
+      <form class="crawl-form" action="{{ url_for('crawl_site') }}" method="post">
+        <label>
+          Seed URL
+          <input type="url" name="seed_url" placeholder="https://example.com" required>
+        </label>
+        <label>
+          Max depth
+          <input type="number" name="max_depth" min="0" max="3" value="1">
+        </label>
+        <label>
+          Max pages
+          <input type="number" name="max_pages" min="1" max="100" value="20">
+        </label>
+        <button type="submit">Start Crawl</button>
+      </form>
+    </main>
+  </body>
+</html>
+

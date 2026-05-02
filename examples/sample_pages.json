@@ -1,0 +1,13 @@
+[
+  {
+    "url": "https://example.com/search",
+    "title": "Search Systems",
+    "content": "A sample page about crawling, indexing, and ranking."
+  },
+  {
+    "url": "https://example.com/ranking",
+    "title": "Ranking Algorithms",
+    "content": "A sample page about PageRank and TF-IDF scoring."
+  }
+]
+
