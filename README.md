@@ -10,16 +10,11 @@ I built a miniature Google-style search stack from first principles: crawler ser
 
 Deployment-ready targets:
 
+- Live Render demo: [https://mini-search-engine-7r3w.onrender.com](https://mini-search-engine-7r3w.onrender.com)
 - GitHub repository: [https://github.com/tauqxxr7/mini-search-engine](https://github.com/tauqxxr7/mini-search-engine)
 - Render blueprint: `render.yaml`
 - Railway-compatible start command: `gunicorn app.main:app`
 - Local demo: `python -m flask --app app.main run`
-
-Public Render/Railway URL:
-
-```text
-Pending platform deployment from the connected Render or Railway account.
-```
 
 The repo includes `render.yaml`, `Procfile`, `Dockerfile`, and `docker-compose.yml`, so the app can be deployed by connecting the GitHub repo to Render/Railway and using the included health check at `/health`.
 
