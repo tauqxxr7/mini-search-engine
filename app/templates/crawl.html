@@ -19,6 +19,9 @@
       <section class="status">
         <strong>Crawl complete.</strong>
         <p>{{ stats.pages_crawled }} pages crawled from {{ stats.seed_url }}.</p>
+        {% if index_stats %}
+        <p>{{ index_stats.indexed_pages }} pages indexed in {{ "%.2f"|format(index_stats.indexing_time_ms) }} ms.</p>
+        {% endif %}
         {% if stats.errors %}
         <ul>
           {% for error in stats.errors[:5] %}
@@ -46,4 +49,3 @@
     </main>
   </body>
 </html>
-

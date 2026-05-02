@@ -25,14 +25,25 @@ def test_indexer_builds_document_and_term_frequency(tmp_path):
 
     beta = db.conn.execute("SELECT document_frequency FROM terms WHERE term = 'beta'").fetchone()
     posting = db.conn.execute(
-        "SELECT term_frequency FROM postings WHERE term = 'beta' AND page_id = ?",
+        "SELECT term_frequency, positions FROM postings WHERE term = 'beta' AND page_id = ?",
         (first_id,),
     ).fetchone()
     assert beta["document_frequency"] == 2
     assert posting["term_frequency"] == 2
+    assert posting["positions"] == "[1, 2]"
     db.close()
 
 
 def test_tfidf_returns_zero_for_empty_inputs():
     assert InvertedIndexer.tfidf(0, 1, 2) == 0.0
 
+
+def test_bm25_scores_matching_terms():
+    score = InvertedIndexer.bm25(
+        term_frequency=3,
+        document_frequency=1,
+        total_documents=10,
+        document_length=100,
+        average_document_length=90,
+    )
+    assert score > 0

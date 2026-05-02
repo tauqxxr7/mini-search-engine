@@ -43,9 +43,9 @@ def crawl_site():
     try:
         crawler = WebCrawler(db)
         stats = crawler.crawl(seed_url, max_depth=max_depth, max_pages=max_pages)
-        InvertedIndexer(db).rebuild()
+        index_stats = InvertedIndexer(db).rebuild(incremental=True)
         PageRanker(db).compute()
-        return render_template("crawl.html", stats=stats)
+        return render_template("crawl.html", stats=stats, index_stats=index_stats)
     except ValueError as exc:
         return render_template("crawl.html", error=str(exc)), 400
     finally:
@@ -58,8 +58,14 @@ def search_page() -> str:
     query = request.args.get("q", "")
     db = get_db()
     try:
-        results = SearchService(db).search(query)
-        return render_template("results.html", query=query, results=results)
+        response = SearchService(db).search(query)
+        return render_template(
+            "results.html",
+            query=query,
+            results=response.results,
+            query_time_ms=response.query_time_ms,
+            did_you_mean=response.did_you_mean,
+        )
     finally:
         db.close()
 
@@ -70,8 +76,48 @@ def api_search():
     query = request.args.get("q", "")
     db = get_db()
     try:
-        results = [result.to_dict() for result in SearchService(db).search(query)]
-        return jsonify({"query": query, "count": len(results), "results": results})
+        response = SearchService(db).search(query)
+        results = [result.to_dict() for result in response.results]
+        return jsonify(
+            {
+                "query": query,
+                "count": len(results),
+                "query_time_ms": round(response.query_time_ms, 3),
+                "did_you_mean": response.did_you_mean,
+                "results": results,
+            }
+        )
+    finally:
+        db.close()
+
+
+@app.get("/api/autocomplete")
+def api_autocomplete():
+    """Return prefix autocomplete suggestions."""
+    prefix = request.args.get("q", "")
+    db = get_db()
+    try:
+        return jsonify({"query": prefix, "suggestions": SearchService(db).autocomplete(prefix)})
+    finally:
+        db.close()
+
+
+@app.get("/api/metrics")
+def api_metrics():
+    """Return query latency and index coverage metrics."""
+    db = get_db()
+    try:
+        return jsonify(db.get_metrics())
+    finally:
+        db.close()
+
+
+@app.get("/api/stats")
+def api_stats():
+    """Return index statistics."""
+    db = get_db()
+    try:
+        return jsonify(db.get_stats())
     finally:
         db.close()
 
@@ -95,4 +141,3 @@ def reset():
 
 if __name__ == "__main__":
     app.run(debug=True)
-

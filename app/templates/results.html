@@ -12,19 +12,24 @@
       <a href="{{ url_for('crawl_form') }}">Crawler</a>
     </nav>
     <main class="results-page">
-      <form class="search-box compact" action="{{ url_for('search_page') }}" method="get">
+      <form class="search-box compact" action="{{ url_for('search_page') }}" method="get" onsubmit="document.getElementById('spinner').style.display='block'">
         <input type="search" name="q" value="{{ query }}" placeholder="Search crawled pages">
         <button type="submit">Search</button>
       </form>
-      <p class="result-count">{{ results|length }} results for "{{ query }}"</p>
+      <div id="spinner" class="spinner" aria-label="Loading"></div>
+      <p class="result-count">{{ results|length }} results for "{{ query }}" in {{ "%.3f"|format(query_time_ms / 1000) }}s</p>
+      {% if did_you_mean %}
+      <p class="spellcheck">Did you mean <a href="{{ url_for('search_page', q=did_you_mean) }}">{{ did_you_mean }}</a>?</p>
+      {% endif %}
       {% for result in results %}
       <article class="result">
         <a class="result-title" href="{{ result.url }}">{{ result.title }}</a>
         <div class="result-url">{{ result.url }}</div>
-        <p>{{ result.snippet }}</p>
+        <p>{{ result.snippet|safe }}</p>
         <div class="scores">
-          <span>TF-IDF {{ "%.4f"|format(result.tfidf_score) }}</span>
+          <span>BM25 {{ "%.4f"|format(result.bm25_score) }}</span>
           <span>PageRank {{ "%.4f"|format(result.pagerank_score) }}</span>
+          <span>Freshness {{ "%.4f"|format(result.freshness_score) }}</span>
           <span>Final {{ "%.4f"|format(result.final_score) }}</span>
         </div>
       </article>
@@ -34,4 +39,3 @@
     </main>
   </body>
 </html>
-

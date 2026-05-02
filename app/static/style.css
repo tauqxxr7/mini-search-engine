@@ -155,9 +155,52 @@ h1 {
   font-size: 13px;
 }
 
+strong {
+  font-weight: 700;
+  background: #fff4bf;
+}
+
+.spinner {
+  display: none;
+  width: 28px;
+  height: 28px;
+  margin: 18px auto 0;
+  border: 3px solid var(--line);
+  border-top-color: #1a73e8;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+.suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  width: min(720px, 100%);
+  margin-top: 14px;
+}
+
+.suggestions button {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 7px 12px;
+  background: #fff;
+  color: var(--muted);
+  cursor: pointer;
+}
+
+.spellcheck {
+  color: var(--muted);
+  margin: 8px 0 22px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 @media (max-width: 640px) {
   .search-box {
     flex-direction: column;
   }
 }
-

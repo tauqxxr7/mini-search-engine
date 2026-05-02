@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import time
+from hashlib import sha256
 from collections import deque
 from dataclasses import dataclass
 from typing import Iterable
@@ -86,6 +87,7 @@ class WebCrawler:
                 headings=page["headings"],
                 content=page["content"],
                 metadata=page["metadata"],
+                content_hash=page["content_hash"],
                 status_code=page["status_code"],
             )
             self.db.add_links(url, page["links"])
@@ -132,6 +134,7 @@ class WebCrawler:
         paragraphs = [p.get_text(" ", strip=True) for p in soup.find_all("p") if p.get_text(strip=True)]
         metadata = self._extract_metadata(soup)
         content = " ".join([title, *headings, *paragraphs]).strip()
+        content_hash = sha256(content.encode("utf-8")).hexdigest()
         links = self._extract_links(soup.find_all("a", href=True), url)
 
         return {
@@ -139,6 +142,7 @@ class WebCrawler:
             "headings": headings,
             "content": content,
             "metadata": metadata,
+            "content_hash": content_hash,
             "links": links,
             "status_code": response.status_code,
         }
@@ -162,4 +166,3 @@ class WebCrawler:
             if is_http_url(normalized) and same_domain(normalized, source_url):
                 links.append(normalized)
         return list(dict.fromkeys(links))
-

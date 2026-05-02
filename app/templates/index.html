@@ -13,11 +13,35 @@
     </nav>
     <main class="search-home">
       <h1>Mini Search Engine</h1>
-      <form class="search-box" action="{{ url_for('search_page') }}" method="get">
-        <input type="search" name="q" placeholder="Search crawled pages" autofocus>
+      <form class="search-box" action="{{ url_for('search_page') }}" method="get" onsubmit="showSpinner()">
+        <input type="search" name="q" id="search-input" placeholder='Search crawled pages, try "machine learning" or title:AI' autofocus autocomplete="off">
         <button type="submit">Search</button>
       </form>
+      <div id="suggestions" class="suggestions"></div>
+      <div id="spinner" class="spinner" aria-label="Loading"></div>
     </main>
+    <script>
+      const input = document.getElementById("search-input");
+      const suggestions = document.getElementById("suggestions");
+      input.addEventListener("input", async () => {
+        const q = input.value.trim();
+        if (q.length < 2 || q.includes(" ")) {
+          suggestions.innerHTML = "";
+          return;
+        }
+        const response = await fetch(`/api/autocomplete?q=${encodeURIComponent(q)}`);
+        const data = await response.json();
+        suggestions.innerHTML = data.suggestions.map(item => `<button type="button">${item}</button>`).join("");
+        suggestions.querySelectorAll("button").forEach(button => {
+          button.addEventListener("click", () => {
+            input.value = button.textContent;
+            suggestions.innerHTML = "";
+          });
+        });
+      });
+      function showSpinner() {
+        document.getElementById("spinner").style.display = "block";
+      }
+    </script>
   </body>
 </html>
-
