@@ -274,6 +274,15 @@ python scripts/load_test.py --base-url http://127.0.0.1:5000 --queries 100
 - Ranking at scale: Compute PageRank and link-quality features offline, publish versioned rank snapshots, and keep the online query path focused on fast candidate retrieval and score blending.
 - Cache strategy: Keep hot queries and autocomplete prefixes in Redis or a CDN-backed edge cache while invalidating by index version.
 
+## 🔧 Next-Level Enhancements
+
+- **Stemming, Synonyms, and Typo-Tolerant Retrieval**: Add stemming/lemmatization, synonym expansion, and edit-distance matching to improve recall.
+- **Positional Index for Phrase Evaluation**: Evaluate phrase queries from positional postings for correctness and scale.
+- **Per-Domain Crawl Budgets and Backoff**: Enforce rate limits, crawl budgets, and exponential backoff for polite crawling.
+- **Asynchronous Pipeline with Background Jobs**: Decouple crawl, parse, index, and ranking via queue-backed workers.
+- **Sharded Index and Distributed Cache**: Replace SQLite with sharded postings and cache hot queries for low latency.
+- **Learning-to-Rank and Feedback Signals**: Add learned ranking models and simulated click feedback beyond BM25 + PageRank.
+
 ## Why This Matters
 
 Google and Bing are massive distributed systems, but the core ideas are visible here: crawlers discover pages, parsers extract useful signals, indexers build fast lookup structures, ranking systems combine lexical relevance with authority, and query services return highlighted results under tight latency budgets.
@@ -316,34 +325,6 @@ Regenerate it after updating screenshots:
 ```bash
 python scripts/make_demo_gif.py
 ```
-
-## Interview Questions
-
-### How does BM25 work?
-
-BM25 scores documents by combining term frequency, inverse document frequency, and document length normalization. It improves on basic TF-IDF because repeated terms eventually saturate, and long documents do not automatically dominate short focused documents.
-
-### Why does PageRank matter?
-
-BM25 tells us whether a document matches the query text. PageRank adds an authority signal from the link graph, so a page linked by other crawled pages can rank higher than an isolated page with similar text.
-
-### How would this scale?
-
-I would split the system into crawler, parser, indexer, ranking, and query-serving services. Crawlers would feed a queue, indexers would build sharded posting lists, ranking jobs would publish offline authority scores, and query servers would fan out to shards and merge top-k results.
-
-### What are the key tradeoffs?
-
-SQLite makes the project easy to run and inspect, but it is not a distributed search backend. Exact phrase matching is simple and readable, but high-scale systems evaluate phrases from positional indexes. The ranking formula is transparent, while production systems typically combine hundreds of features and learned ranking models.
-
-## FAANG-Level Resume Bullets
-
-- Built a Google-inspired mini search platform in Python with crawler, sitemap discovery, incremental indexing, positional inverted index, BM25 retrieval, PageRank authority scoring, and Flask query serving.
-- Designed advanced query execution for phrase search, boolean operators, field filters, autocomplete via trie, LRU result caching, spelling suggestions, highlighted snippets, and latency metrics.
-- Modeled production search architecture concepts including crawler, index, ranking, and query services with SQLite-backed persistence, content-hash deduplication, freshness scoring, API observability, and pytest coverage.
-
-## Recruiter Pitch
-
-I built a production-minded mini search engine from scratch to show that I understand the systems behind search, not just web app CRUD. It crawls politely, indexes incrementally, ranks with BM25 plus PageRank and freshness, supports advanced queries, exposes metrics APIs, and includes tests and documentation that map the implementation to real distributed search infrastructure.
 
 ## Future Improvements
 
