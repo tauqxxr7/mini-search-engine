@@ -71,6 +71,14 @@ class SearchDatabase:
                 result_count INTEGER NOT NULL,
                 searched_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
             );
+
+            CREATE TABLE IF NOT EXISTS crawl_metrics (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                seed_url TEXT NOT NULL,
+                duration_ms REAL NOT NULL,
+                pages_crawled INTEGER NOT NULL,
+                crawled_at TEXT NOT NULL DEFAULT CURRENT_TIMESTAMP
+            );
             """
         )
         self._migrate()
@@ -101,7 +109,7 @@ class SearchDatabase:
     def clear_all(self) -> None:
         """Remove pages, links, index data, and rank data."""
         self.conn.executescript(
-            "DELETE FROM links; DELETE FROM postings; DELETE FROM terms; DELETE FROM pagerank; DELETE FROM query_metrics; DELETE FROM pages;"
+            "DELETE FROM links; DELETE FROM postings; DELETE FROM terms; DELETE FROM pagerank; DELETE FROM query_metrics; DELETE FROM crawl_metrics; DELETE FROM pages;"
         )
         self.conn.commit()
 
@@ -223,6 +231,14 @@ class SearchDatabase:
         )
         self.conn.commit()
 
+    def record_crawl_metric(self, seed_url: str, duration_ms: float, pages_crawled: int) -> None:
+        """Store crawl duration for the metrics API."""
+        self.conn.execute(
+            "INSERT INTO crawl_metrics(seed_url, duration_ms, pages_crawled) VALUES (?, ?, ?)",
+            (seed_url, duration_ms, pages_crawled),
+        )
+        self.conn.commit()
+
     def get_metrics(self) -> dict[str, float | int]:
         """Return operational metrics for the API."""
         row = self.conn.execute(
@@ -236,12 +252,19 @@ class SearchDatabase:
         ).fetchone()
         pages = self.conn.execute("SELECT COUNT(*) AS count FROM pages").fetchone()["count"]
         indexed = self.conn.execute("SELECT COUNT(*) AS count FROM pages WHERE indexed_at IS NOT NULL").fetchone()["count"]
+        unique_terms = self.conn.execute("SELECT COUNT(*) AS count FROM terms").fetchone()["count"]
+        crawl = self.conn.execute(
+            "SELECT duration_ms, pages_crawled FROM crawl_metrics ORDER BY id DESC LIMIT 1"
+        ).fetchone()
         return {
             "indexed_pages": int(indexed),
             "total_pages": int(pages),
+            "unique_terms": int(unique_terms),
             "query_count": int(row["query_count"]),
             "avg_latency_ms": float(row["avg_latency_ms"]),
             "max_latency_ms": float(row["max_latency_ms"]),
+            "latest_crawl_duration_ms": float(crawl["duration_ms"]) if crawl else 0.0,
+            "latest_crawl_pages": int(crawl["pages_crawled"]) if crawl else 0,
         }
 
     def get_stats(self, limit: int = 10) -> dict[str, object]:

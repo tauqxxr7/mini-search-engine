@@ -41,7 +41,7 @@ a:hover {
   display: grid;
   align-content: center;
   justify-items: center;
-  padding: 24px;
+  padding: 24px 24px 12vh;
 }
 
 h1 {
@@ -55,6 +55,7 @@ h1 {
   display: flex;
   width: min(720px, 100%);
   gap: 12px;
+  align-items: center;
 }
 
 .search-box input,
@@ -66,6 +67,7 @@ h1 {
   padding: 0 18px;
   color: var(--text);
   font-size: 16px;
+  box-shadow: 0 1px 6px rgba(32, 33, 36, 0.12);
 }
 
 .search-box button,
@@ -84,7 +86,7 @@ h1 {
 .results-page {
   max-width: 900px;
   margin: 0 auto;
-  padding: 32px 24px 64px;
+  padding: 42px 24px 72px;
 }
 
 .page h1 {
@@ -114,7 +116,8 @@ h1 {
 
 .compact {
   justify-content: flex-start;
-  margin-bottom: 22px;
+  margin-bottom: 18px;
+  width: min(760px, 100%);
 }
 
 .compact input {
@@ -124,10 +127,12 @@ h1 {
 .result-count {
   color: var(--muted);
   font-size: 14px;
+  margin: 0 0 24px;
 }
 
 .result {
-  margin: 26px 0;
+  margin: 0 0 30px;
+  max-width: 780px;
 }
 
 .result-title {
@@ -157,7 +162,9 @@ h1 {
 
 strong {
   font-weight: 700;
-  background: #fff4bf;
+  background: #ffe58a;
+  border-radius: 3px;
+  padding: 0 2px;
 }
 
 .spinner {

@@ -25,6 +25,7 @@ class CrawlStats:
     seed_url: str
     pages_crawled: int
     pages_seen: int
+    duration_ms: float
     errors: list[str]
 
 
@@ -49,6 +50,7 @@ class WebCrawler:
     def crawl(self, seed_url: str, *, max_depth: int = 1, max_pages: int = 20, use_sitemap: bool = True) -> CrawlStats:
         """Crawl from seed_url and persist pages plus link graph edges."""
         seed = normalize_url(seed_url)
+        start = time.perf_counter()
         if not is_http_url(seed):
             raise ValueError("Seed URL must use http or https.")
 
@@ -100,7 +102,15 @@ class WebCrawler:
 
             time.sleep(self.delay_seconds)
 
-        return CrawlStats(seed_url=seed, pages_crawled=pages_crawled, pages_seen=len(visited), errors=errors)
+        duration_ms = (time.perf_counter() - start) * 1000
+        self.db.record_crawl_metric(seed, duration_ms, pages_crawled)
+        return CrawlStats(
+            seed_url=seed,
+            pages_crawled=pages_crawled,
+            pages_seen=len(visited),
+            duration_ms=duration_ms,
+            errors=errors,
+        )
 
     def _load_robots(self, seed_url: str) -> RobotFileParser:
         robots = RobotFileParser()

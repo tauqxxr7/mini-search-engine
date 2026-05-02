@@ -17,7 +17,7 @@
         <button type="submit">Search</button>
       </form>
       <div id="spinner" class="spinner" aria-label="Loading"></div>
-      <p class="result-count">{{ results|length }} results for "{{ query }}" in {{ "%.3f"|format(query_time_ms / 1000) }}s</p>
+      <p class="result-count">About {{ results|length }} results in {{ "%.3f"|format(query_time_ms / 1000) }} seconds</p>
       {% if did_you_mean %}
       <p class="spellcheck">Did you mean <a href="{{ url_for('search_page', q=did_you_mean) }}">{{ did_you_mean }}</a>?</p>
       {% endif %}

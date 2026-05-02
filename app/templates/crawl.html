@@ -18,7 +18,7 @@
       {% if stats %}
       <section class="status">
         <strong>Crawl complete.</strong>
-        <p>{{ stats.pages_crawled }} pages crawled from {{ stats.seed_url }}.</p>
+        <p>{{ stats.pages_crawled }} pages crawled from {{ stats.seed_url }} in {{ "%.2f"|format(stats.duration_ms / 1000) }}s.</p>
         {% if index_stats %}
         <p>{{ index_stats.indexed_pages }} pages indexed in {{ "%.2f"|format(index_stats.indexing_time_ms) }} ms.</p>
         {% endif %}

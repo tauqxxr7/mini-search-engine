@@ -67,6 +67,18 @@ Seed URL ------> |  Crawler Service  |
 
 In a distributed version, the crawler service would push fetched pages into a queue, the index service would consume and shard postings by term, the ranking service would periodically compute graph authority, and the query service would fan out to index shards before merging ranked results.
 
+## ASCII Architecture Diagram
+
+```text
+User -> Flask API -> Search Service -> Index -> SQLite
+                         ^
+                         |
+              Ranking Engine (BM25 + PageRank)
+                         ^
+                         |
+                   Crawler -> Web
+```
+
 ## Features
 
 - Polite same-domain crawler with user-agent, robots.txt checks, sitemap parsing, request delay, duplicate URL avoidance, max depth, and max page limits.
@@ -177,6 +189,25 @@ Current verification:
 docker compose up --build
 ```
 
+## Performance Metrics
+
+The project exposes operational metrics through `/api/metrics` and index statistics through `/api/stats`.
+
+```text
+Indexed pages count:      /api/metrics -> indexed_pages
+Unique terms:             /api/metrics -> unique_terms
+Average query latency:    /api/metrics -> avg_latency_ms
+Latest crawl duration:    /api/metrics -> latest_crawl_duration_ms
+Top terms and index size: /api/stats
+```
+
+Example:
+
+```bash
+curl "http://127.0.0.1:5000/api/metrics"
+curl "http://127.0.0.1:5000/api/stats"
+```
+
 ## Performance Benchmarks
 
 Local benchmark from the automated test corpus:
@@ -202,18 +233,56 @@ curl "http://127.0.0.1:5000/api/stats"
 - PageRank is recomputed after crawl completion; a production graph pipeline would run offline and publish versioned rank snapshots.
 - The query parser is intentionally compact and readable; real systems use richer parsers, query rewriting, synonyms, and learned ranking.
 
+## Scaling Discussion
+
+- Distributed crawler: Move crawl jobs into a queue such as Kafka, SQS, or Redis Streams. Multiple crawler workers would lease URLs, enforce per-domain rate limits, write fetched pages to durable storage, and publish parse/index events.
+- Replace SQLite with Elasticsearch: Store documents and posting lists in Elasticsearch/OpenSearch for distributed indexing, replicated shards, built-in BM25, highlighting, analyzers, and operational tooling.
+- Shard the index: Partition postings by term hash or document id. Query serving would fan out to relevant shards, retrieve top-k candidates, merge scores, and apply global ranking features like PageRank and freshness.
+- Ranking at scale: Compute PageRank and link-quality features offline, publish versioned rank snapshots, and keep the online query path focused on fast candidate retrieval and score blending.
+- Cache strategy: Keep hot queries and autocomplete prefixes in Redis or a CDN-backed edge cache while invalidating by index version.
+
+## Why This Matters
+
+Google and Bing are massive distributed systems, but the core ideas are visible here: crawlers discover pages, parsers extract useful signals, indexers build fast lookup structures, ranking systems combine lexical relevance with authority, and query services return highlighted results under tight latency budgets.
+
+This project maps those concepts into a readable local implementation. It demonstrates that I can reason across backend services, data pipelines, ranking algorithms, storage tradeoffs, observability, and user-facing search quality instead of only building a surface-level Flask app.
+
 ## Limitations and Ethical Crawling Note
 
 This is an educational portfolio project, not an aggressive scraper. Keep crawl limits small, use polite delays, respect robots.txt, avoid private or sensitive data, and do not crawl sites that prohibit automated access. The crawler is single-machine and best suited for demos on small public sites.
 
 ## Screenshots
 
-Add screenshots after a demo:
+Add screenshots here after running the local demo:
 
-- Search homepage with autocomplete.
-- Crawler page with indexing time.
-- Results page with highlighted snippets and score breakdown.
-- Metrics and stats JSON responses.
+- Search UI: centered Google-style search page with autocomplete.
+- Results page: highlighted snippets, "About X results in Y seconds", BM25/PageRank/freshness scores.
+- Crawl page: seed URL form, crawl duration, incremental indexing time.
+
+```text
+docs/screenshots/search-ui.png
+docs/screenshots/results-page.png
+docs/screenshots/crawl-page.png
+```
+
+## Demo GIF
+
+Record a short GIF that shows the complete recruiter demo flow:
+
+```text
+1. Open /crawl and crawl a small site.
+2. Return to the homepage.
+3. Type a prefix and show autocomplete.
+4. Run a phrase query such as "machine learning".
+5. Show highlighted results and score breakdown.
+6. Open /api/metrics to show latency and index metrics.
+```
+
+Suggested output path:
+
+```text
+docs/demo.gif
+```
 
 ## FAANG-Level Resume Bullets
 
