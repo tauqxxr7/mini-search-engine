@@ -6,6 +6,23 @@ A production-minded Python search engine that demonstrates crawling, sitemap par
 
 I built a miniature Google-style search stack from first principles: crawler service, index service, ranking service, and query service, all small enough to read but serious enough to discuss in a FAANG system design interview.
 
+## Live Demo
+
+Deployment-ready targets:
+
+- GitHub repository: [https://github.com/tauqxxr7/mini-search-engine](https://github.com/tauqxxr7/mini-search-engine)
+- Render blueprint: `render.yaml`
+- Railway-compatible start command: `gunicorn app.main:app`
+- Local demo: `python -m flask --app app.main run`
+
+Public Render/Railway URL:
+
+```text
+Pending platform deployment from the connected Render or Railway account.
+```
+
+The repo includes `render.yaml`, `Procfile`, `Dockerfile`, and `docker-compose.yml`, so the app can be deployed by connecting the GitHub repo to Render/Railway and using the included health check at `/health`.
+
 ## How Google Search Works (Simplified)
 
 ```text
@@ -210,12 +227,22 @@ curl "http://127.0.0.1:5000/api/stats"
 
 ## Performance Benchmarks
 
-Local benchmark from the automated test corpus:
+Synthetic local benchmark generated with `python scripts/benchmark.py --pages 100 500`:
 
 ```text
-Indexing: incremental and full indexing complete in milliseconds for small corpora.
-Query serving: in-process SQLite + LRU cache keeps repeated queries sub-millisecond after warmup.
-Test suite: 12 tests complete in under 1 second on a laptop-class Windows machine.
+100 pages crawl simulation: 21.98 ms
+100 pages indexing time:    94.25 ms
+100 pages avg query:        5.36 ms
+100 pages peak memory:      0.36 MB
+
+500 pages crawl simulation: 107.04 ms
+500 pages indexing time:    507.46 ms
+500 pages avg query:        25.91 ms
+500 pages peak memory:      1.62 MB
+
+100-query load test:        16.05 ms average latency
+100-query p95 latency:      18.68 ms
+Test suite:                 12 tests passed
 ```
 
 For a larger demo, crawl a small site with max pages `10` to `50`, then inspect:
@@ -223,6 +250,12 @@ For a larger demo, crawl a small site with max pages `10` to `50`, then inspect:
 ```bash
 curl "http://127.0.0.1:5000/api/metrics"
 curl "http://127.0.0.1:5000/api/stats"
+```
+
+Run the load test:
+
+```bash
+python scripts/load_test.py --base-url http://127.0.0.1:5000 --queries 100
 ```
 
 ## Design Tradeoffs
@@ -253,36 +286,54 @@ This is an educational portfolio project, not an aggressive scraper. Keep crawl 
 
 ## Screenshots
 
-Add screenshots here after running the local demo:
+Real screenshots captured from the local Flask app:
 
-- Search UI: centered Google-style search page with autocomplete.
-- Results page: highlighted snippets, "About X results in Y seconds", BM25/PageRank/freshness scores.
-- Crawl page: seed URL form, crawl duration, incremental indexing time.
+### Search UI
 
-```text
-docs/screenshots/search-ui.png
-docs/screenshots/results-page.png
-docs/screenshots/crawl-page.png
-```
+![Search UI](docs/screenshots/search-ui.png)
+
+### Results Page
+
+![Results page](docs/screenshots/results-page.png)
+
+### Crawl Page
+
+![Crawl page](docs/screenshots/crawl-page.png)
+
+### Metrics API Output
+
+![Metrics API output](docs/screenshots/metrics-api.png)
+
 
 ## Demo GIF
 
-Record a short GIF that shows the complete recruiter demo flow:
+Short demo GIF:
 
-```text
-1. Open /crawl and crawl a small site.
-2. Return to the homepage.
-3. Type a prefix and show autocomplete.
-4. Run a phrase query such as "machine learning".
-5. Show highlighted results and score breakdown.
-6. Open /api/metrics to show latency and index metrics.
+![Mini Search Engine demo](docs/demo.gif)
+
+Regenerate it after updating screenshots:
+
+```bash
+python scripts/make_demo_gif.py
 ```
 
-Suggested output path:
+## Interview Questions
 
-```text
-docs/demo.gif
-```
+### How does BM25 work?
+
+BM25 scores documents by combining term frequency, inverse document frequency, and document length normalization. It improves on basic TF-IDF because repeated terms eventually saturate, and long documents do not automatically dominate short focused documents.
+
+### Why does PageRank matter?
+
+BM25 tells us whether a document matches the query text. PageRank adds an authority signal from the link graph, so a page linked by other crawled pages can rank higher than an isolated page with similar text.
+
+### How would this scale?
+
+I would split the system into crawler, parser, indexer, ranking, and query-serving services. Crawlers would feed a queue, indexers would build sharded posting lists, ranking jobs would publish offline authority scores, and query servers would fan out to shards and merge top-k results.
+
+### What are the key tradeoffs?
+
+SQLite makes the project easy to run and inspect, but it is not a distributed search backend. Exact phrase matching is simple and readable, but high-scale systems evaluate phrases from positional indexes. The ranking formula is transparent, while production systems typically combine hundreds of features and learned ranking models.
 
 ## FAANG-Level Resume Bullets
 
