@@ -7,4 +7,8 @@ htmlcov/
 data/*.db
 !data/.gitkeep
 .env
+.env.local
+dist/
+build/
+.DS_Store
 

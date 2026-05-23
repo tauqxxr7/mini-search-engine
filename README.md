@@ -201,6 +201,13 @@ Current verification:
 docker compose up --build
 ```
 
+## 🛡 Engineering & Security Notes
+
+- Environment variables are excluded from version control.
+- Generated local databases and build artifacts are ignored.
+- Search components are separated into crawl, index, ranking, and query layers.
+- The repository is structured for reproducible local demos rather than ad hoc scripts.
+
 ## Performance Metrics
 
 The project exposes operational metrics through `/api/metrics` and index statistics through `/api/stats`.
